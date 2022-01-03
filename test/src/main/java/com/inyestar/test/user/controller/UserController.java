@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.inyestar.test.order.dto.OrderDTO;
-import com.inyestar.test.order.service.OrderService;
 import com.inyestar.test.user.dto.UserDTO;
 import com.inyestar.test.user.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -29,15 +30,16 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 	
 	@Autowired private UserService userService;
-	@Autowired private OrderService orderService;
 	
 	/**
 	 * 단일 회원 상세 정보 조회
 	 * @param id
 	 * @return
 	 */
+	@Operation(summary = "단일 회원 상세 정보 조회",  description = "특정 사용자의 회원 상세 정보를 조회합니다.")
 	@GetMapping("/{id}")
-	public UserDTO detail(@PathVariable("id") long id) {
+	public UserDTO detail(  @Parameter(description = "사용자 PK")
+							@PathVariable("id") long id) {
 		log.debug("view detail request (id={})", id);
 		return userService.findById(id);
 	}
@@ -48,10 +50,14 @@ public class UserController {
 	 * @param pageable
 	 * @return
 	 */
+	@Operation(summary = "단일 회원의 주문 목록 조회", description = "특정 사용자의 전체 주문 내역을 조회합니다.")
 	@GetMapping("/{id}/orders")
-	public Page<OrderDTO> orders(@PathVariable("id") long id, Pageable pageable) {
+	public Page<OrderDTO> orders(	@Parameter(description = "사용자 PK")
+									@PathVariable("id") long id, 
+									@Parameter(description = "페이징 파라미터")
+									Pageable pageable) {
 		log.debug("view orders request (id={}, pageable={})", id, pageable);
-		return orderService.findAllByUserId(id, pageable);
+		return userService.findOrdersByUserId(id, pageable);
 	}
 	
 	/**
@@ -60,8 +66,12 @@ public class UserController {
 	 * @param pageable
 	 * @return
 	 */
+	@Operation(summary = "여러 회원 목록 조회", description = "다수 회원 목록을 조회합니다. 각 회원 정보에는 마지막 주문 내용이 포함되어 있습니다.")
 	@GetMapping()
-	public Page<UserDTO> search(@RequestParam("search") String search, Pageable pageable) {
+	public Page<UserDTO> search(	@Parameter(description="이름 혹은 이메일 검색어")
+									@RequestParam("search") String search,
+									@Parameter(description="페이징 파라미터")
+									Pageable pageable) {
 		log.debug("search request (search={}, pageable={})", search, pageable);
 		return userService.searchByNameOrEmail(search, pageable);
 	}
@@ -71,8 +81,10 @@ public class UserController {
 	 * @param newUser
 	 * @return
 	 */
+	@Operation(summary = "유저 생성", description = "회원 가입 시 유저 정보를 새롭게 생성하여 저장합니다.")
 	@PostMapping()
-	public ResponseEntity<UserDTO> join(@RequestBody @Valid UserDTO newUser) {
+	public ResponseEntity<UserDTO> join(	@Parameter(description="신규 유저 정보")
+											@RequestBody @Valid UserDTO newUser) {
 		log.debug("join request (email={})", newUser.getEmail());
 		UserDTO createdUser = userService.save(newUser);
 		return ResponseEntity

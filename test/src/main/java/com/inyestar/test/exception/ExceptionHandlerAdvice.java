@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 	
+	//TODO 에러 메시지 응답 형식 통일 필요
+	
 	@ExceptionHandler({
 		DuplicateException.class,
 		NotFoundException.class,

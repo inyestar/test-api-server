@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import com.inyestar.test.utils.StringUtils;
@@ -33,11 +34,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			HttpServletResponse response, 
 			FilterChain chain) throws IOException, ServletException {
 		String token = jwtProvider.retrieveToken(request);
-		if(!StringUtils.isEmpty(token)) {
-			String email = jwtProvider.parseToken(token);
-			if(!StringUtils.isEmpty(email)) {
-				SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(email, null));
-			}
+		if(!StringUtils.isEmpty(token) && jwtProvider.isValidToken(token)) {
+			UserDetails details = jwtProvider.parseTokenToUserDetails(token);
+			SecurityContextHolder.getContext().setAuthentication(
+						new UsernamePasswordAuthenticationToken(
+								details,
+								null,
+								details.getAuthorities()));
 		}
 		
 		chain.doFilter(request, response);

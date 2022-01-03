@@ -7,8 +7,9 @@ import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.inyestar.test.order.entity.Order;
-import com.inyestar.test.user.entity.User;
+import com.inyestar.test.user.dto.UserDTO;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +32,8 @@ public class OrderDTO {
 	@DateTimeFormat(iso = ISO.DATE_TIME)
 	private LocalDateTime paidAt;
 	
-	private User user;
+	@JsonBackReference
+	private UserDTO user;
 	
 	public OrderDTO(Order order) {
 		copyProperties(order, this);

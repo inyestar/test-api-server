@@ -1,16 +1,14 @@
 package com.inyestar.test.user.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.inyestar.test.order.entity.Order;
 
@@ -57,10 +55,15 @@ public class User {
 	@Column(columnDefinition = "TIMESTAMP")
 	private LocalDateTime lastLoginAt;
 	
-	@OneToMany(fetch = FetchType.LAZY)
-	private List<Order> orders;
+	@Transient
+	private Order lastOrder;
 	
+	// TODO: token 발급 성공 시 update
 	public void updateLastLoginAt() {
 		this.lastLoginAt = LocalDateTime.now();
+	}
+	
+	public void setLastOrder(Order lastOrder) {
+		this.lastOrder = lastOrder;
 	}
 }
